@@ -175,5 +175,4 @@ Crie esse arquivo e adicione instruções claras para:
 ---
 
 ## **Bônus 🌟**
-- Adicionar um script `npm run db:reset` que derruba, recria, migra e popula o banco automaticamente.
 - Implementar endpoint `/agentes/:id/casos` para listar todos os casos atribuídos a um agente.
