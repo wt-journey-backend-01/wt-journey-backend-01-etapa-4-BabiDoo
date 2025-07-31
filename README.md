@@ -122,7 +122,7 @@ module.exports = db
 - Use o Knex CLI para gerar as migrations com o seguinte nome (Tem certeza de que o diretório que você se encontra no terminal é a raiz do projeto, do contrário você terá uma pasta `db/` duplicada):
 
 ```bash
-npx knex migrate:make solution_migrations.js
+npx knex migrate:make solution_migrations
 
 ```
 
@@ -138,10 +138,12 @@ npx knex migrate:latest
 ---
 
 ### 5. Criar Seeds
-- Crie seeds para popular as tabelas com pelo menos 2 agentes e 2 casos (Tem certeza de que o diretório que você se encontra no terminal é a raiz do projeto, do contrário você terá uma pasta `db/` duplicada):
+- Crie seeds para popular as tabelas com pelo menos 2 agentes e 2 casos. Crie um arquivo para cada tabela e siga a nomeclatura que definimos abaixo. (Tem certeza de que o diretório que você se encontra no terminal é a raiz do projeto, do contrário você terá uma pasta `db/` duplicada):
 
 ```bash
-npx knex seed:make solution_migrations.js
+npx knex seed:make agentes.js
+npx knex seed:make casos.js
+
 
 ```
 - Execute as seeds com:
