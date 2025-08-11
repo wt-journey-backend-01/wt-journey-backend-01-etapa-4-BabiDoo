@@ -1,0 +1,28 @@
+{
+  "name": "depart-pm",
+  "version": "1.0.0",
+  "description": "Etapa 2 DepartPM - WebTech Journey Backend",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch server.js",
+    "migrate": "knex migrate:latest",
+    "seed": "knex seed:run",
+    "db:setup": "docker compose up -d && npx knex migrate:latest && npx knex seed:run"
+
+  },
+  "author": "Barbara Dorneles",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.0.13"
+  },
+  "devDependencies": {
+    "knex": "^3.1.0",
+    "pg": "^8.16.3"
+  }
+}
