@@ -1,4 +1,4 @@
-import 'dotenv/config';
+require('dotenv').config();
 
 const shared = {
   client: 'pg',
@@ -6,7 +6,7 @@ const shared = {
   seeds: { directory: './db/seeds' },
 };
 
-export default {
+module.exports = {
   development: {
     ...shared,
     connection: {
