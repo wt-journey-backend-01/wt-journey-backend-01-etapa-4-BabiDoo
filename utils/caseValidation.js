@@ -1,4 +1,4 @@
-import z from 'zod';
+const { z } = require('zod');
 
 const caseSchema = z.object({
   titulo: z.string().min(10, 'O título do caso deve ter pelo menos 10 caracteres.'),
@@ -7,4 +7,4 @@ const caseSchema = z.object({
   agenteId: z.number().int().positive().nullable().optional(),
 });
 
-export { caseSchema };
+module.exports = { caseSchema };

@@ -1,6 +1,6 @@
-import * as repository from '../repositories/casoRepository.js';
-import { caseSchema } from '../utils/caseValidation.js';
-import { casePatchSchema } from '../utils/partialDataValidation.js';
+const repository = require('../repositories/casoRepository.js');
+const { caseSchema } = require('../utils/caseValidation.js');
+const { casePatchSchema } = require('../utils/partialDataValidation.js');
 
 class ApiError extends Error {
   constructor(message, statusCode = 500) {
@@ -10,14 +10,14 @@ class ApiError extends Error {
   }
 }
 
-export const getAllCases = async (req, res, next) => {
+const getAllCases = async (req, res, next) => {
   try {
     const cases = await repository.findAll();
     res.status(200).json(cases);
   } catch (e) { next(new ApiError('Erro ao listar casos.')); }
 };
 
-export const getCaseById = async (req, res, next) => {
+const getCaseById = async (req, res, next) => {
   try {
     const item = await repository.findById(Number(req.params.id));
     if (!item) return next(new ApiError('Caso não encontrado.', 404));
@@ -25,7 +25,7 @@ export const getCaseById = async (req, res, next) => {
   } catch (e) { next(new ApiError('Erro ao buscar caso.')); }
 };
 
-export const createCase = async (req, res, next) => {
+const createCase = async (req, res, next) => {
   try {
     const { id, ...payload } = req.body;
     const data = caseSchema.parse(payload);
@@ -43,8 +43,7 @@ export const createCase = async (req, res, next) => {
     next(new ApiError(e?.message || 'Erro ao criar caso.', 400));
   }
 };
-
-export const updateCase = async (req, res, next) => {
+ const updateCase = async (req, res, next) => {
   try {
     const data = caseSchema.parse(req.body);
     const updated = await repository.update(Number(req.params.id), {
@@ -57,8 +56,7 @@ export const updateCase = async (req, res, next) => {
     res.status(200).json(updated);
   } catch (e) { next(new ApiError(e?.message || 'Erro ao atualizar caso.', 400)); }
 };
-
-export const patchCase = async (req, res, next) => {
+const patchCase = async (req, res, next) => {
   try {
     const data = casePatchSchema.parse(req.body);
     const updated = await repository.patch(Number(req.params.id), {
@@ -72,10 +70,12 @@ export const patchCase = async (req, res, next) => {
   } catch (e) { next(new ApiError(e?.message || 'Erro ao atualizar caso.', 400)); }
 };
 
-export const deleteCase = async (req, res, next) => {
+const deleteCase = async (req, res, next) => {
   try {
     const ok = await repository.remove(Number(req.params.id));
     if (!ok) return next(new ApiError('Caso não encontrado.', 404));
     res.sendStatus(204);
   } catch (e) { next(new ApiError('Erro ao deletar o caso.')); }
 };
+
+module.exports = { getAllCases, createCase, updateCase, patchCase, deleteCase, getCaseById }

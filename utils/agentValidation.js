@@ -1,4 +1,4 @@
-import z from 'zod';
+const { z } = require('zod');
 
 const agentSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório.'),
@@ -7,4 +7,4 @@ const agentSchema = z.object({
   cargo: z.string().min(1, 'Cargo é obrigatório.'),
 });
 
-export { agentSchema };
+module.exports = { agentSchema };

@@ -1,21 +1,20 @@
-import db from '../db/db.js';
+const db = require('../db/db.js');
 
-export async function findAll() {
+async function findAll() {
   return db('casos').select('*').orderBy('id', 'asc');
 }
-
-export async function findById(id) {
+ async function findById(id) {
   return db('casos').where({ id }).first();
 }
 
-export async function create({ titulo, descricao, status = 'aberto', agente_id = null }) {
+async function create({ titulo, descricao, status = 'aberto', agente_id = null }) {
   const [created] = await db('casos')
     .insert({ titulo, descricao, status, agente_id })
     .returning('*');
   return created;
 }
 
-export async function update(id, { titulo, descricao, status, agente_id }) {
+async function update(id, { titulo, descricao, status, agente_id }) {
   const payload = {};
   if (titulo !== undefined) payload.titulo = titulo;
   if (descricao !== undefined) payload.descricao = descricao;
@@ -28,12 +27,13 @@ export async function update(id, { titulo, descricao, status, agente_id }) {
     .returning('*');
   return updated;
 }
-
-export async function patch(id, partialData) {
+async function patch(id, partialData) {
   return update(id, partialData);
 }
 
-export async function remove(id) {
+async function remove(id) {
   const deleted = await db('casos').where({ id }).del();
   return deleted > 0;
 }
+
+module.exports = { findAll, findById, create, update, patch, remove }

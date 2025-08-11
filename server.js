@@ -1,14 +1,17 @@
-import 'dotenv/config'; //middleware de config da biblioteca dotenv
-import express from 'express';
-import agentRoutes from './routes/agenteRoutes.js';
-import caseRoutes from './routes/casoRoutes.js';
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+
+const agentRoutes = require('./routes/agenteRoutes.js');
+const caseRoutes = require('./routes/casoRoutes.js');
 
 const app = express();
-const PORT = process.env.PORT || 3000; //usa a variavel PORT que esta definida no arquivo .env
-app.use(express.json()); //middleware do express para lidar com dados do tipo json
+app.use(cors());
+app.use(express.json());
+
 app.use('/agentes', agentRoutes);
 app.use('/casos', caseRoutes);
 
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
-
-//alteracao para o autograder funcionar pq commitei no github
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`API on http://localhost:${PORT}`));

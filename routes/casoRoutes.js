@@ -1,5 +1,5 @@
-import express from 'express';
-import * as controller from '../controllers/casoController.js';
+const express = require('express');
+const controller = require('../controllers/casoController.js');
 
 const caseRouter = express.Router();
 
@@ -10,4 +10,4 @@ caseRouter.put('/:id', controller.updateCase);
 caseRouter.patch('/:id', controller.patchCase);
 caseRouter.delete('/:id', controller.deleteCase);
 
-export default caseRouter;
+module.exports = caseRouter;

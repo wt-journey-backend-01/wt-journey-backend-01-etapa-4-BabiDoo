@@ -1,6 +1,6 @@
-import * as repository from '../repositories/agenteRepository.js';
-import { agentSchema } from '../utils/agentValidation.js';
-import { agentPatchSchema } from '../utils/partialDataValidation.js';
+const repository = require('../repositories/agenteRepository.js');
+const { agentSchema } = require('../utils/agentValidation.js');
+const { agentPatchSchema } = require('../utils/partialDataValidation.js');
 
 class ApiError extends Error {
   constructor(message, statusCode = 500) {
@@ -10,22 +10,21 @@ class ApiError extends Error {
   }
 }
 
-export const getAllAgents = async (req, res, next) => {
+const getAllAgents = async (req, res, next) => {
   try {
     const agents = await repository.findAll();
     res.status(200).json(agents);
-  } catch (e) { next(new ApiError('Erro ao listar agentes.')); }
+  } catch (e) { console.error('getAllAgents error:', e); next(new ApiError('Erro ao listar agentes.')); }
 };
 
-export const getAgentById = async (req, res, next) => {
+const getAgentById = async (req, res, next) => {
   try {
     const agent = await repository.findById(Number(req.params.id));
     if (!agent) return next(new ApiError('Agente não encontrado.', 404));
     res.status(200).json(agent);
   } catch (e) { next(new ApiError('Erro ao buscar agente.')); }
 };
-
-export const createAgent = async (req, res, next) => {
+const createAgent = async (req, res, next) => {
   try {
     const { id, ...payload } = req.body;
     const data = agentSchema.parse(payload);
@@ -37,7 +36,7 @@ export const createAgent = async (req, res, next) => {
   }
 };
 
-export const updateAgent = async (req, res, next) => {
+const updateAgent = async (req, res, next) => {
   try {
     const data = agentSchema.parse(req.body);
     const updated = await repository.update(Number(req.params.id), data);
@@ -46,7 +45,7 @@ export const updateAgent = async (req, res, next) => {
   } catch (e) { next(new ApiError(e?.message || 'Erro ao atualizar agente.', 400)); }
 };
 
-export const patchAgent = async (req, res, next) => {
+const patchAgent = async (req, res, next) => {
   try {
     const data = agentPatchSchema.parse(req.body);
     const updated = await repository.patch(Number(req.params.id), data);
@@ -55,10 +54,19 @@ export const patchAgent = async (req, res, next) => {
   } catch (e) { next(new ApiError(e?.message || 'Erro ao atualizar agente.', 400)); }
 };
 
-export const deleteAgent = async (req, res, next) => {
+const deleteAgent = async (req, res, next) => {
   try {
     const ok = await repository.remove(Number(req.params.id));
     if (!ok) return next(new ApiError('Agente não encontrado.', 404));
     res.sendStatus(204);
   } catch (e) { next(new ApiError('Erro ao deletar agente.')); }
+};
+
+module.exports = {
+  getAllAgents,
+  getAgentById,
+  createAgent,
+  updateAgent,
+  patchAgent,
+  deleteAgent
 };

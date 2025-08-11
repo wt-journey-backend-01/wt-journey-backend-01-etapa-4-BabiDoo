@@ -1,7 +1,5 @@
-/**
- * @param { import("knex").Knex } knex
- */
-export async function up(knex) {
+/** @param {import('knex')} knex */
+exports.up = async function (knex) {
   await knex.schema.createTable('agentes', (table) => {
     table.increments('id').primary();
     table.string('nome').notNullable();
@@ -24,9 +22,9 @@ export async function up(knex) {
       .index();
     table.timestamps(true, true);
   });
-}
+};
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('casos');
   await knex.schema.dropTableIfExists('agentes');
-}
+};

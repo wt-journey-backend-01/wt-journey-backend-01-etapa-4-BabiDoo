@@ -1,6 +1,6 @@
-import express from 'express';
-import * as controller from '../controllers/agenteController.js';
-import * as repository from '../repositories/agenteRepository.js';
+const express = require('express');
+const controller = require('../controllers/agenteController.js');
+const repository = require('../repositories/agenteRepository.js');
 
 const agentRouter = express.Router();
 
@@ -18,4 +18,4 @@ agentRouter.get('/:id/casos', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-export default agentRouter;
+module.exports = agentRouter;

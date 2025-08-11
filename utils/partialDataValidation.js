@@ -1,8 +1,8 @@
-import { agentSchema } from '../utils/agentValidation.js';
-import { caseSchema } from '../utils/caseValidation.js';
+const { agentSchema } = require('../utils/agentValidation.js');
+const { caseSchema }   = require('../utils/caseValidation.js');
 
 const agentPatchSchema = agentSchema.partial();
-const casePatchSchema = caseSchema.partial();
+const casePatchSchema  = caseSchema.partial();
 
-export { agentPatchSchema, casePatchSchema };
+module.exports = { agentPatchSchema, casePatchSchema };
 
