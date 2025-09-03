@@ -4,11 +4,11 @@
   "description": "Etapa 3 DepartPM - WebTech Journey Backend",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch server.js",
     "migrate": "knex migrate:latest",
     "seed": "knex seed:run",
-    "db:setup": "docker compose up -d && npx knex migrate:latest && npx knex seed:run"
+    "db:setup": "docker compose up -d && npx knex migrate:latest && npx knex seed:run",
+    "db:reset": "npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run"
   },
   "author": "Barbara Dorneles",
   "license": "ISC",
@@ -16,12 +16,12 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "knex": "^3.1.0",
+    "pg": "^8.16.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
-    "zod": "^4.0.13",
-    "knex": "^3.1.0",
-    "pg": "^8.16.3"
+    "zod": "^4.0.13"
   },
   "devDependencies": {
     "knex": "^3.1.0",

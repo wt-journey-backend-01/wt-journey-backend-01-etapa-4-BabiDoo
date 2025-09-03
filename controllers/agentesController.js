@@ -1,81 +1,116 @@
-import * as repository from '../repositories/agentesRepository.js';
-import { agentSchema } from '../utils/agentValidation.js';
-import { agentPatchSchema } from '../utils/partialDataValidation.js';
-import { ZodError } from 'zod';
+const db = require('../db/db.js');
 
-class ApiError extends Error {
-  constructor(message, statusCode = 500) {
-    super(message);
-    this.name = 'ApiError';
-    this.statusCode = statusCode;
+// GET /agentes
+async function getAllAgents(req, res, next) {
+  try {
+    const { cargo, sort } = req.query;
+
+    let q = db('agentes').select('*');
+    if (cargo) q = q.where({ cargo });
+
+    // sort: ex. "nome" ou "-dataDeIncorporacao"
+    if (sort) {
+      const dir = sort.startsWith('-') ? 'desc' : 'asc';
+      const col = sort.replace(/^-/, '');
+      q = q.orderBy(col, dir);
+    } else {
+      q = q.orderBy('id', 'asc');
+    }
+
+    const rows = await q;
+    res.json(rows);
+  } catch (err) {
+    next(err);
   }
 }
 
-export const getAllAgents = (req, res, next) => {
-  try {
-    const agents = repository.findAll();
-    return res.status(200).json(agents);
-    } catch (err) {
-    if (err instanceof ZodError) return next(new ApiError('Parâmetros de consulta inválidos.', 400));
-    return next(new ApiError('Não foi possível listar os agentes.'));
-  }
-};
-
-export const getAgentById = (req, res, next) => {
+// GET /agentes/:id
+async function getAgentById(req, res, next) {
   try {
     const { id } = req.params;
-    const agent = repository.findById(id);
-    if (!agent) return next(new ApiError('Agente não encontrado.', 404));
-    return res.status(200).json(agent);
-  } catch {
-    return next(new ApiError('Erro ao buscar o agente.'));
-  }
-};
-
-export const createAgent = (req, res, next) => {
-  try {
-    const data = agentSchema.parse(req.body);
-    const created = repository.create(data);
-    return res.status(201).json(created);
+    const row = await db('agentes').where({ id }).first();
+    if (!row) return res.status(404).json({ message: 'Agente não encontrado' });
+    res.json(row);
   } catch (err) {
-    if (err instanceof ZodError) return next(new ApiError('Parâmetros inválidos.', 400));
-    return next(new ApiError('Erro ao criar o agente.'));
+    next(err);
   }
-};
+}
 
-export const updateAgent = (req, res, next) => {
+// POST /agentes
+async function createAgent(req, res, next) {
   try {
-    const { id } = req.params;
-    const data = agentSchema.parse(req.body);
-    const updated = repository.update(id, data);
-    if (!updated) return next(new ApiError('Agente não encontrado.', 404));
-    return res.status(200).json(updated);
+    const { nome, dataDeIncorporacao, cargo } = req.body;
+    const [row] = await db('agentes')
+      .insert({ nome, dataDeIncorporacao, cargo })
+      .returning('*');
+    res.status(201).json(row);
   } catch (err) {
-    if (err instanceof ZodError) return next(new ApiError('Parâmetros inválidos.', 400));
-    return next(new ApiError('Erro ao atualizar o agente.'));
+    next(err);
   }
-};
+}
 
-export const patchAgent = (req, res, next) => {
+// PUT /agentes/:id
+async function updateAgent(req, res, next) {
   try {
     const { id } = req.params;
-    const partial = agentPatchSchema.parse(req.body);
-    const patched = repository.patch(id, partial);
-    if (!patched) return next(new ApiError('Agente não encontrado.', 404));
-    return res.status(200).json(patched);
+    const { nome, dataDeIncorporacao, cargo } = req.body;
+    const [row] = await db('agentes')
+      .where({ id })
+      .update({ nome, dataDeIncorporacao, cargo })
+      .returning('*');
+    if (!row) return res.status(404).json({ message: 'Agente não encontrado' });
+    res.json(row);
   } catch (err) {
-    if (err instanceof ZodError) return next(new ApiError('Parâmetros inválidos.', 400));
-    return next(new ApiError('Erro ao atualizar o agente.'));
+    next(err);
   }
-};
+}
 
-export const deleteAgent = (req, res, next) => {
+// PATCH /agentes/:id
+async function patchAgent(req, res, next) {
   try {
     const { id } = req.params;
-    const deleted = repository.remove(id);
-    if (!deleted) return next(new ApiError('Agente não encontrado.', 404));
-    return res.sendStatus(204);
-  } catch {
-    return next(new ApiError('Erro ao deletar agente.'));
+    const payload = {};
+    ['nome', 'dataDeIncorporacao', 'cargo'].forEach(k => {
+      if (req.body[k] !== undefined) payload[k] = req.body[k];
+    });
+
+    const [row] = await db('agentes').where({ id }).update(payload).returning('*');
+    if (!row) return res.status(404).json({ message: 'Agente não encontrado' });
+    res.json(row);
+  } catch (err) {
+    next(err);
   }
+}
+
+// DELETE /agentes/:id
+async function deleteAgent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const count = await db('agentes').where({ id }).del();
+    if (!count) return res.status(404).json({ message: 'Agente não encontrado' });
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /agentes/:id/casos
+async function getCasesByAgent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const rows = await db('casos').where({ agente_id: id }).orderBy('id', 'asc');
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  getAllAgents,
+  getAgentById,
+  createAgent,
+  updateAgent,
+  patchAgent,
+  deleteAgent,
+  getCasesByAgent,
 };

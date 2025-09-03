@@ -1,36 +1,64 @@
-import { v4 as uuidv4 } from 'uuid';
+const db = require('../db/db.js');
 
-const agents = [];
+async function findAll({ cargo, sort } = {}) {
+  const q = db('agentes').select('*');
+  if (cargo) q.whereILike('cargo', cargo); // aceita 'Delegado' ou 'delegado'
+  // sort: 'campo' ou '-campo'
+  const allowed = new Set(['id', 'nome', 'dataDeIncorporacao', 'cargo']);
+  if (sort) {
+    const desc = sort.startsWith('-');
+    const field = desc ? sort.slice(1) : sort;
+    if (allowed.has(field)) q.orderBy(field, desc ? 'desc' : 'asc');
+  } else {
+    q.orderBy('id', 'asc');
+  }
+  return q;
+}
 
-const findAll = () => agents;
+async function findById(id) {
+  return db('agentes').where({ id }).first();
+}
 
-const findById = (id) => agents.find((a) => a.id === id);
+async function create({ nome, dataDeIncorporacao, cargo }) {
+  const [row] = await db('agentes')
+    .insert({ nome, dataDeIncorporacao, cargo })
+    .returning('*');
+  return row;
+}
 
-const create = (data) => {
-  const newAgent = { ...data, id: uuidv4() };
-  agents.push(newAgent);
-  return newAgent;
+async function update(id, { nome, dataDeIncorporacao, cargo }) {
+  const [row] = await db('agentes')
+    .where({ id })
+    .update({ nome, dataDeIncorporacao, cargo })
+    .returning('*');
+  return row || null;
+}
+
+async function patch(id, partial) {
+  const payload = {};
+  if (partial.nome !== undefined) payload.nome = partial.nome;
+  if (partial.dataDeIncorporacao !== undefined) payload.dataDeIncorporacao = partial.dataDeIncorporacao;
+  if (partial.cargo !== undefined) payload.cargo = partial.cargo;
+
+  const [row] = await db('agentes').where({ id }).update(payload).returning('*');
+  return row || null;
+}
+
+async function remove(id) {
+  const count = await db('agentes').where({ id }).del();
+  return count > 0;
+}
+
+async function findCasesByAgent(agentId) {
+  return db('casos').select('*').where({ agente_id: agentId }).orderBy('id', 'asc');
+}
+
+module.exports = {
+  findAll,
+  findById,
+  create,
+  update,
+  patch,
+  remove,
+  findCasesByAgent,
 };
-
-const update = (id, data) => {
-  const i = agents.findIndex(a => a.id === id);
-  if (i === -1) return null;
-  agents[i] = { ...data, id }; 
-  return agents[i];
-};
-
-const patch = (id, partial) => {
-  const i = agents.findIndex(a => a.id === id);
-  if (i === -1) return null;
-  agents[i] = { ...agents[i], ...partial }; 
-  return agents[i];
-};
-
-const remove = (id) => {
-  const index = agents.findIndex((a) => a.id === id);
-  if (index === -1) return false;
-  agents.splice(index, 1);
-  return true;
-};
-
-export { findAll, findById, create, update, patch, remove };

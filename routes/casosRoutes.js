@@ -1,14 +1,13 @@
 const express = require('express');
 const controller = require('../controllers/casosController.js');
-const { requireUuidParam } = require('../utils/requireUuidParam.js');
 
-const caseRouter = express.Router();
+const router = express.Router();
 
-caseRouter.get('/', controller.getAllCases);
-caseRouter.post('/', controller.createCase);
-caseRouter.get('/:id', requireUuidParam('id'), controller.getCaseById);
-caseRouter.put('/:id', requireUuidParam('id'), controller.updateCase);
-caseRouter.patch('/:id', requireUuidParam('id'), controller.patchCase);
-caseRouter.delete('/:id', requireUuidParam('id'), controller.deleteCase);
+router.get('/', controller.getAllCases);
+router.post('/', controller.createCase);
+router.get('/:id', /*requireIntId('id'),*/ controller.getCaseById);
+router.put('/:id', /*requireIntId('id'),*/ controller.updateCase);
+router.patch('/:id', /*requireIntId('id'),*/ controller.patchCase);
+router.delete('/:id', /*requireIntId('id'),*/ controller.deleteCase);
 
-module.exports = caseRouter;
+module.exports = router;
