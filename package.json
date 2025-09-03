@@ -1,7 +1,7 @@
 {
   "name": "depart-pm",
   "version": "1.0.0",
-  "description": "Etapa 2 DepartPM - WebTech Journey Backend",
+  "description": "Etapa 3 DepartPM - WebTech Journey Backend",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,10 +18,15 @@
     "express": "^5.1.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^4.0.13"
+    "uuid": "^11.1.0",
+    "zod": "^4.0.13",
+    "knex": "^3.1.0",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "knex": "^3.1.0",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "uuid": "^11.1.0",
+    "zod": "^4.0.13"
   }
 }

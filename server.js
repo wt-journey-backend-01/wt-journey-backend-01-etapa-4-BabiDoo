@@ -3,8 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const agentRoutes = require('./routes/agenteRoutes.js');
-const caseRoutes = require('./routes/casoRoutes.js');
+const agentRoutes = require('./routes/agentesRoutes.js');
+const caseRoutes = require('./routes/casosRoutes.js');
 
 const app = express();
 app.use(cors());
