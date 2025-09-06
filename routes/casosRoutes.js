@@ -5,9 +5,9 @@ const router = express.Router();
 
 router.get('/', controller.getAllCases);
 router.post('/', controller.createCase);
-router.get('/:id', /*requireIntId('id'),*/ controller.getCaseById);
-router.put('/:id', /*requireIntId('id'),*/ controller.updateCase);
-router.patch('/:id', /*requireIntId('id'),*/ controller.patchCase);
-router.delete('/:id', /*requireIntId('id'),*/ controller.deleteCase);
+router.get('/:id', controller.getCaseById);
+router.put('/:id', controller.updateCase);
+router.patch('/:id', controller.patchCase);
+router.delete('/:id', controller.deleteCase);
 
 module.exports = router;
