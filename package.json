@@ -4,7 +4,8 @@
   "description": "Etapa 3 DepartPM - WebTech Journey Backend",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
+    "start": "node server.js",
+    "dev": "npm --watch server.js",
     "db:migrate": "knex migrate:latest",
     "db:rollback": "knex migrate:rollback",
     "db:seed": "knex seed:run",
@@ -17,10 +18,6 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "knex": "^3.1.0",
-    "pg": "^8.16.3"
-  },
-  "devDependencies": {
     "knex": "^3.1.0",
     "pg": "^8.16.3"
   }
