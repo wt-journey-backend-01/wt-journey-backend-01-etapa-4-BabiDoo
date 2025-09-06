@@ -1,116 +1,98 @@
-const db = require('../db/db.js');
+const repository = require('../repositories/agentesRepository');
+const ApiError = require('../utils/ApiError');
+const mapError = require('../utils/dbErrorMap');
+const { validateCreateOrUpdate, validatePatch } = require('../utils/agentValidator');
+const mapPgError = require('../utils/dbErrorMap');
 
-// GET /agentes
 async function getAllAgents(req, res, next) {
   try {
-    const { cargo, sort } = req.query;
-
-    let q = db('agentes').select('*');
-    if (cargo) q = q.where({ cargo });
-
-    // sort: ex. "nome" ou "-dataDeIncorporacao"
-    if (sort) {
-      const dir = sort.startsWith('-') ? 'desc' : 'asc';
-      const col = sort.replace(/^-/, '');
-      q = q.orderBy(col, dir);
-    } else {
-      q = q.orderBy('id', 'asc');
-    }
-
-    const rows = await q;
-    res.json(rows);
-  } catch (err) {
-    next(err);
+    const rows = await repository.findAll();
+    return res.status(200).json(rows);
+  } catch {
+    return next(mapError(err));
   }
 }
 
-// GET /agentes/:id
-async function getAgentById(req, res, next) {
+async function getAgentById(req, res, next) { 
   try {
     const { id } = req.params;
-    const row = await db('agentes').where({ id }).first();
-    if (!row) return res.status(404).json({ message: 'Agente não encontrado' });
-    res.json(row);
-  } catch (err) {
-    next(err);
+    const row = await repository.findById(id);
+    if(!row) throw new ApiError(404, 'Agente nao encontrado.');
+    return res.status(200).json(row);
+  } catch (error) {
+    return next(mapPgError(error));
   }
 }
 
-// POST /agentes
 async function createAgent(req, res, next) {
   try {
-    const { nome, dataDeIncorporacao, cargo } = req.body;
-    const [row] = await db('agentes')
-      .insert({ nome, dataDeIncorporacao, cargo })
-      .returning('*');
-    res.status(201).json(row);
-  } catch (err) {
-    next(err);
+    const errors = validateCreateOrUpdate(req.body);
+    if(errors.length) throw new ApiError (400, errors.join(''));
+    const novo = await repository.create({
+      nome: req.body.nome,
+      cargo: req.body.cargo,
+      dataDeIncorporacao: req.body.dataDeIncorporacao,
+    });
+
+    return res.status(201).json(novo);
+  } catch (error) {
+    return next(mapPgError(error));
   }
 }
 
-// PUT /agentes/:id
 async function updateAgent(req, res, next) {
   try {
     const { id } = req.params;
-    const { nome, dataDeIncorporacao, cargo } = req.body;
-    const [row] = await db('agentes')
-      .where({ id })
-      .update({ nome, dataDeIncorporacao, cargo })
-      .returning('*');
-    if (!row) return res.status(404).json({ message: 'Agente não encontrado' });
-    res.json(row);
-  } catch (err) {
-    next(err);
+    const errors = validateCreateOrUpdate(req.body);
+    if(errors.length) throw new ApiError(400, errors.join(''));
+    const atualizado = await repository.update(id, {
+      nome: req.body.nome,
+      cargo: req.body.cargo,
+      dataDeIncorporacao: req.body.dataDeIncorporacao
+    });
+
+    if(!atualizado) throw new ApiError (404, 'Agente nao encontrado.');
+    return res.status(200).json(atualizado);
+  } catch (error) {
+    return next(mapPgError(error))
   }
 }
 
-// PATCH /agentes/:id
 async function patchAgent(req, res, next) {
   try {
     const { id } = req.params;
-    const payload = {};
-    ['nome', 'dataDeIncorporacao', 'cargo'].forEach(k => {
-      if (req.body[k] !== undefined) payload[k] = req.body[k];
-    });
+    const errors = validatePatch(req.body);
+    if(errors.length) throw new ApiError(400, errors.join(''));
 
-    const [row] = await db('agentes').where({ id }).update(payload).returning('*');
-    if (!row) return res.status(404).json({ message: 'Agente não encontrado' });
-    res.json(row);
-  } catch (err) {
-    next(err);
+    const partial = {};
+    if('nome' in req.body) partial.nome = req.body.nome;
+    if('cargo' in req.body) partial.cargo = req.body.partial;
+    if('dataDeIncorporacao' in req.body) partial.dataDeIncorporacao = req.body.dataDeIncorporacao;
+
+    const atualizado = await repository.patch(id, partial);
+    if(!atualizado) throw new ApiError(404, 'Agente nao encontrado.');
+    return res.status(200).json(atualizado);
+  } catch (error) {
+    return next(mapPgError(error));
   }
 }
 
-// DELETE /agentes/:id
-async function deleteAgent(req, res, next) {
+async function deleteAgent(req, res, next) { 
   try {
     const { id } = req.params;
-    const count = await db('agentes').where({ id }).del();
-    if (!count) return res.status(404).json({ message: 'Agente não encontrado' });
-    res.status(204).end();
-  } catch (err) {
-    next(err);
-  }
-}
-
-// GET /agentes/:id/casos
-async function getCasesByAgent(req, res, next) {
-  try {
-    const { id } = req.params;
-    const rows = await db('casos').where({ agente_id: id }).orderBy('id', 'asc');
-    res.json(rows);
-  } catch (err) {
-    next(err);
+    const ok = await repository.remove(id);
+    if(!ok) throw new ApiError(404, 'Agente nao encontrado.');
+    return res.status(200).send();
+  } catch (error) {
+    return next(mapPgError(error));
   }
 }
 
 module.exports = {
   getAllAgents,
-  getAgentById,
   createAgent,
+  getAgentById,
   updateAgent,
   patchAgent,
   deleteAgent,
-  getCasesByAgent,
 };
