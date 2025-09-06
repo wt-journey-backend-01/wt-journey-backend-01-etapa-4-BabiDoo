@@ -1,13 +1,13 @@
 const express = require('express');
 const controller = require('../controllers/casosController.js');
 
-const router = express.Router();
+const casosRouter = express.Router();
 
-router.get('/', controller.getAllCases);
-router.post('/', controller.createCase);
-router.get('/:id', controller.getCaseById);
-router.put('/:id', controller.updateCase);
-router.patch('/:id', controller.patchCase);
-router.delete('/:id', controller.deleteCase);
+casosRouter.get('/', controller.getAllCases);
+casosRouter.post('/', controller.createCase);
+casosRouter.get('/:id', controller.getCaseById);
+casosRouter.put('/:id', controller.updateCase);
+casosRouter.patch('/:id', controller.patchCase);
+casosRouter.delete('/:id', controller.deleteCase);
 
-module.exports = router;
+module.exports = casosRouter;
