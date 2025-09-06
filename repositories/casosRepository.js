@@ -1,52 +1,55 @@
-const db = require('../db/db.js');
+const db = require('../db/db');
 
-async function findAll({ status, agente_id } = {}) {
-  const q = db('casos').select('*');
-  if (status) q.where('status', status);
-  if (agente_id !== undefined) q.where('agente_id', agente_id);
-  return q.orderBy('id', 'asc');
+const findAll = async () => {
+  return db('casos').select('*');
 }
 
-async function findById(id) {
+const findById = async (id) => {
   return db('casos').where({ id }).first();
 }
 
-async function create({ titulo, descricao, status = 'aberto', agente_id = null }) {
-  const [row] = await db('casos')
-    .insert({ titulo, descricao, status, agente_id })
-    .returning('*');
-  return row;
+const create = async (data) => {
+   const [row] = await db('casos').insert({
+    titulo: data.titulo,
+      descricao: data.descricao,
+      status: data.status,
+      agente_id: data.agente_id,
+   }).returning('*');
+   return row;
 }
 
-async function update(id, { titulo, descricao, status = 'aberto', agente_id = null }) {
-  const [row] = await db('casos')
-    .where({ id })
-    .update({ titulo, descricao, status, agente_id })
-    .returning('*');
+
+const update = async (id, data) => {
+  const [row] = await db('casos').where({ id }).update(
+    {
+      titulo: data.titulo,
+      descricao: data.descricao,
+      status: data.status,
+      agente_id: data.agente_id,
+    },
+    '*'
+  );
   return row || null;
 }
 
-async function patch(id, partial) {
-  const payload = {};
-  if (partial.titulo !== undefined) payload.titulo = partial.titulo;
-  if (partial.descricao !== undefined) payload.descricao = partial.descricao;
-  if (partial.status !== undefined) payload.status = partial.status;
-  if (partial.agente_id !== undefined) payload.agente_id = partial.agente_id;
+const patch = async (id, partial) => {
+  const toUpdate = {};
+  if (partial.titulo ==! undefined) toUpdate.titulo = partial;
+  if (partial.descricao ==! undefined) toUpdate.descricao = partial;
+  if (partial.status ==! undefined) toUpdate.status = partial;
+  if (partial.agente_id ==! undefined) toUpdate.agente_id = partial;
 
-  const [row] = await db('casos').where({ id }).update(payload).returning('*');
+  if (Object.keys(toUpdate).length === 0) {
+    return db('casos').where({ id }).first();
+  }
+
+  const [row] = await db('casos').where({ id })
+  .update({...toUpdate}, '*');
+
   return row || null;
 }
 
-async function remove(id) {
+const remove = async (id) => {
   const count = await db('casos').where({ id }).del();
-  return count > 0;
+  return count > 1;
 }
-
-module.exports = {
-  findAll,
-  findById,
-  create,
-  update,
-  patch,
-  remove,
-};
