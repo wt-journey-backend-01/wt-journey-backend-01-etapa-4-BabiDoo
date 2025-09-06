@@ -1,11 +1,24 @@
-const knexLib = require('knex');
+const knex = require('knex');
 const knexConfig = require('../knexfile.js');
-const env = process.env.NODE_ENV || 'development';
-const config = knexConfig[env];
-const knex = knexLib(config);
-knex.on('query-error', (err) => {
+
+const environment = process.env.NODE_ENV || 'development';
+const dbConfig = knexConfig[environment];
+const db = knex(dbConfig);
+
+db.on('query-error', (err) => {
   console.error('Knex query error:', err.message);
 });
 
+module.exports = db;
 
-module.exports = knex;
+// const knex = require('knex'); 
+// const MyKnexFile = require('../knexfile.js'); 
+// const environment = process.env.NODE_ENV || 'development'; 
+// const MyDBSetup = MyKnexFile[environment];
+// const db = knex(MyDBSetup);
+// db.on('query-error', (err) => {
+//   console.error('Knex query error:', err.message);
+// });
+
+
+// module.exports = db;
