@@ -50,7 +50,7 @@ const patch = async (id, partial) => {
 
 const remove = async (id) => {
   const count = await db('agentes').where({ id }).del();
-  return count > 0; //pq a variavel chama count e retorna count > 1 ???
+  return count > 0;
 };
 
 module.exports = { findAll, findById, create, update, patch, remove };

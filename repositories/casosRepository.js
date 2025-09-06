@@ -53,3 +53,5 @@ const remove = async (id) => {
   const count = await db('casos').where({ id }).del();
   return count > 1;
 }
+
+module.exports = { findAll, findById, create, update, patch, remove };
