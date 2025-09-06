@@ -3,8 +3,9 @@
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
-require('dotenv').config();
 
 module.exports = {
 
@@ -30,7 +31,7 @@ module.exports = {
       host: 'postgres', // Using the service name as the host
       port: 5432,
       user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
+      password: String(process.env.POSTGRES_PASSWORD),
       database: process.env.POSTGRES_DB,
     },
     migrations: {
