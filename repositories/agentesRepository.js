@@ -15,7 +15,7 @@ const create = async (data) => {
       cargo: data.cargo,
       dataDeIncorporacao: data.dataDeIncorporacao,
     })
-    .returning(['id','nome']);
+    .returning(['id','nome', 'cargo', 'dataDeIncorporacao']);
   return row;
 };
 

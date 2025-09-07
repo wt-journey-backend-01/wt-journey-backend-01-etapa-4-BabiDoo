@@ -10,7 +10,7 @@ const findById = async (id) => {
 
 const create = async (data) => {
    const [row] = await db('casos').insert({
-    titulo: data.titulo,
+      titulo: data.titulo,
       descricao: data.descricao,
       status: data.status,
       agente_id: data.agente_id,
@@ -34,14 +34,12 @@ const update = async (id, data) => {
 
 const patch = async (id, partial) => {
   const toUpdate = {};
-  if (partial.titulo ==! undefined) toUpdate.titulo = partial;
-  if (partial.descricao ==! undefined) toUpdate.descricao = partial;
-  if (partial.status ==! undefined) toUpdate.status = partial;
-  if (partial.agente_id ==! undefined) toUpdate.agente_id = partial;
+  if (partial.titulo) toUpdate.titulo = partial.titulo;
+  if (partial.descricao) toUpdate.descricao = partial.descricao;
+  if (partial.status) toUpdate.status = partial.status;
+  if (partial.agente_id) toUpdate.agente_id = partial.agent_id;
 
-  if (Object.keys(toUpdate).length === 0) {
-    return db('casos').where({ id }).first();
-  }
+  if (Object.keys(toUpdate).length === 0) return findById(id);
 
   const [row] = await db('casos').where({ id })
   .update({...toUpdate}, '*');
@@ -51,7 +49,14 @@ const patch = async (id, partial) => {
 
 const remove = async (id) => {
   const count = await db('casos').where({ id }).del();
-  return count > 1;
+  return count > 0;
 }
 
-module.exports = { findAll, findById, create, update, patch, remove };
+module.exports = { 
+  findAll, 
+  findById, 
+  create, 
+  update, 
+  patch, 
+  remove
+};
