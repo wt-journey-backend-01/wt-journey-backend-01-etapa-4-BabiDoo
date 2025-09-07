@@ -1,3 +1,4 @@
+const db = require('../db/db');
 const repository = require('../repositories/agentesRepository');
 const ApiError = require('../utils/ApiError');
 const mapError = require('../utils/dbErrorMap');
@@ -36,6 +37,7 @@ async function createAgent(req, res, next) {
 
     return res.status(201).json(novo);
   } catch (error) {
+    console.log(error)
     return next(mapPgError(error));
   }
 }
@@ -66,7 +68,7 @@ async function patchAgent(req, res, next) {
 
     const partial = {};
     if('nome' in req.body) partial.nome = req.body.nome;
-    if('cargo' in req.body) partial.cargo = req.body.partial;
+    if('cargo' in req.body) partial.cargo = req.body.cargo;
     if('dataDeIncorporacao' in req.body) partial.dataDeIncorporacao = req.body.dataDeIncorporacao;
 
     const atualizado = await repository.patch(id, partial);
