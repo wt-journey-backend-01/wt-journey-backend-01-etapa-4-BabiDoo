@@ -2,20 +2,18 @@
 
 # 🧪 Relatório de Avaliação – Journey Levty Etapa 1 - BabiDoo
 
-**Data:** 07/09/2025 01:31
+**Data:** 07/09/2025 01:50
 
-**Nota Final:** `54.47/100`
+**Nota Final:** `59.47/100`
 **Status:** ❌ Reprovado
 
 ---
 ## ✅ Requisitos Obrigatórios
-- Foram encontrados `8` problemas nos requisitos obrigatórios. Veja abaixo os testes que falharam:
+- Foram encontrados `7` problemas nos requisitos obrigatórios. Veja abaixo os testes que falharam:
   - ⚠️ **Falhou no teste**: `CREATE: Cria agentes corretamente`
     - **Melhoria sugerida**: A criação de agentes (`POST /agentes`) não está conforme o esperado. O teste esperava um status `201 Created` e os dados do agente no corpo da resposta. Verifique a lógica da sua rota para garantir que o agente é salvo e a resposta é formatada corretamente.
   - ⚠️ **Falhou no teste**: `UPDATE: Atualiza dados do agente com por completo (com PUT) corretamente`
     - **Melhoria sugerida**: A atualização completa de agentes (`PUT /agentes/:id`) não funcionou. O teste esperava um status `200 OK` e o agente com os dados atualizados. Verifique se sua rota está recebendo o payload completo e substituindo os dados existentes corretamente.
-  - ⚠️ **Falhou no teste**: `DELETE: Deleta dados de agente corretamente`
-    - **Melhoria sugerida**: A exclusão de agente (`DELETE /agentes/:id`) não funcionou como esperado. O teste esperava um status `204 No Content` e que o agente fosse realmente removido. Verifique a lógica de exclusão na sua rota.
   - ⚠️ **Falhou no teste**: `UPDATE: Recebe status code 400 ao tentar atualizar agente parcialmente com método PATCH e payload em formato incorreto`
     - **Melhoria sugerida**: Nenhuma sugestão de melhoria disponível.
   - ⚠️ **Falhou no teste**: `CREATE: Cria casos corretamente`
