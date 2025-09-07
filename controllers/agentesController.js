@@ -26,6 +26,7 @@ async function getAgentById(req, res, next) {
 }
 
 async function createAgent(req, res, next) {
+  console.log('Tentando criar: ', req.body);
   try {
     const errors = validateCreateOrUpdate(req.body);
     if(errors.length) throw new ApiError (400, errors.join(''));
@@ -37,7 +38,7 @@ async function createAgent(req, res, next) {
 
     return res.status(201).json(novo);
   } catch (error) {
-    console.log(error)
+    console.log('With the rebel: ', res.body)
     return next(mapPgError(error));
   }
 }
@@ -80,12 +81,14 @@ async function patchAgent(req, res, next) {
 }
 
 async function deleteAgent(req, res, next) { 
+  console.log('Tento Deletar: ', req.body)
   try {
     const { id } = req.params;
     const ok = await repository.remove(id);
     if(!ok) throw new ApiError(404, 'Agente nao encontrado.');
-    return res.status(200).send();
+    return res.status(204).send();
   } catch (error) {
+    console.log('REBEL: ', res.body);
     return next(mapPgError(error));
   }
 }
