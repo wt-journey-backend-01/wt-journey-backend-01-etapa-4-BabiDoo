@@ -26,15 +26,17 @@ async function getAgentById(req, res, next) {
 }
 
 async function createAgent(req, res, next) {
-  console.log('Tentando criar: ', req.body);
+  console.log('[CREATE_AGENT][REQ BODY]', req.body);
   try {
     const errors = validateCreateOrUpdate(req.body);
+    console.log('[CREATE_AGENT][VALIDATION ERRORS]', errors);
     if(errors.length) throw new ApiError (400, errors.join(''));
     const novo = await repository.create({
       nome: req.body.nome,
       cargo: req.body.cargo,
       dataDeIncorporacao: req.body.dataDeIncorporacao,
     });
+    console.log('[CREATE_AGENT][DB RESULT]', novo);
 
     return res.status(201).json(novo);
   } catch (error) {
