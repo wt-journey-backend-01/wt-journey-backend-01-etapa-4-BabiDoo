@@ -1,7 +1,9 @@
 const express = require('express');
 const controller = require('../controllers/casosController.js');
-
+const authenticateToken = require('../middlewares/authMiddleware');
 const casosRouter = express.Router();
+
+casosRouter.use(authenticateToken);
 
 casosRouter.get('/', controller.getAllCases);
 casosRouter.post('/', controller.createCase);

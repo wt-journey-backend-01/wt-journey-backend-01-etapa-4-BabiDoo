@@ -1,7 +1,5 @@
-const db = require("../db/db");
 const repository = require("../repositories/agentesRepository");
 const ApiError = require("../utils/ApiError");
-const mapError = require("../utils/dbErrorMap");
 const {
   validateCreateOrUpdate,
   validatePatch,

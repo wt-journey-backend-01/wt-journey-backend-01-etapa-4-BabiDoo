@@ -1,7 +1,10 @@
 const express = require('express');
 const controller = require('../controllers/agentesController.js');
-
+const authenticateToken = require('../middlewares/authMiddleware');
 const agentesRouter = express.Router();
+
+
+agentesRouter.use(authenticateToken);
 
 agentesRouter.get('/', controller.getAllAgents);
 agentesRouter.post('/', controller.createAgent);
