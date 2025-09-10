@@ -5,6 +5,10 @@ const {
   validatePatch,
 } = require("../utils/agentValidator");
 
+const isUUID = (v) =>
+  typeof v === "string" &&
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(v);
+
 const toYMD = (d) => {
   if (!d) return d;
   const date = typeof d === "string" ? new Date(d) : d;
@@ -12,7 +16,16 @@ const toYMD = (d) => {
   return date.toISOString().slice(0, 10);
 };
 
-async function getAllAgents(req, res, next) {
+const ensureId404 = (id) => {
+  if (!isUUID(id)) throw new ApiError(404, "Agente nao encontrado.");
+};
+
+const ensureNoExtra = (body, allowed) => {
+  const hasExtra = Object.keys(body).some((k) => !allowed.includes(k));
+  if (hasExtra) throw new ApiError(400, "Payload contém campos não permitidos.");
+};
+
+async function getAllAgents(req, res) {
   try {
     const rows = await repository.findAll();
     const payload = rows.map((r) => ({
@@ -26,15 +39,13 @@ async function getAllAgents(req, res, next) {
   }
 }
 
-async function getAgentById(req, res, next) {
+async function getAgentById(req, res) {
   try {
     const { id } = req.params;
+    ensureId404(id);
     const row = await repository.findById(id);
     if (!row) throw new ApiError(404, "Agente nao encontrado.");
-    const payload = {
-      ...row,
-      dataDeIncorporacao: toYMD(row.dataDeIncorporacao),
-    };
+    const payload = { ...row, dataDeIncorporacao: toYMD(row.dataDeIncorporacao) };
     return res.status(200).json(payload);
   } catch (error) {
     const code = error.statusCode || 500;
@@ -42,23 +53,20 @@ async function getAgentById(req, res, next) {
   }
 }
 
-async function createAgent(req, res, next) {
-  console.log("[CREATE_AGENT][REQ BODY]", req.body);
+async function createAgent(req, res) {
   try {
+    ensureNoExtra(req.body, ["nome", "cargo", "dataDeIncorporacao"]);
+
     const errors = validateCreateOrUpdate(req.body);
-    console.log("[CREATE_AGENT][VALIDATION ERRORS]", errors);
     if (errors.length) throw new ApiError(400, errors.join(""));
+
     const novo = await repository.create({
       nome: req.body.nome,
       cargo: req.body.cargo,
       dataDeIncorporacao: req.body.dataDeIncorporacao,
     });
-    const payload = {
-      ...novo,
-      dataDeIncorporacao: toYMD(novo.dataDeIncorporacao),
-    };
-    console.log("[CREATE_AGENT][DB RESULT]", novo);
 
+    const payload = { ...novo, dataDeIncorporacao: toYMD(novo.dataDeIncorporacao) };
     return res.status(201).json(payload);
   } catch (error) {
     const code = error.statusCode || 500;
@@ -66,14 +74,19 @@ async function createAgent(req, res, next) {
   }
 }
 
-async function updateAgent(req, res, next) {
+async function updateAgent(req, res) {
   try {
     const { id } = req.params;
+    ensureId404(id); 
     if ("id" in req.body && req.body.id !== id) {
       throw new ApiError(400, "Não é permitido alterar o ID.");
     }
+
+    ensureNoExtra(req.body, ["nome", "cargo", "dataDeIncorporacao", "id"]);
+
     const errors = validateCreateOrUpdate(req.body);
     if (errors.length) throw new ApiError(400, errors.join(""));
+
     const atualizado = await repository.update(id, {
       nome: req.body.nome,
       cargo: req.body.cargo,
@@ -81,10 +94,8 @@ async function updateAgent(req, res, next) {
     });
 
     if (!atualizado) throw new ApiError(404, "Agente nao encontrado.");
-    const payload = {
-      ...atualizado,
-      dataDeIncorporacao: toYMD(atualizado.dataDeIncorporacao),
-    };
+
+    const payload = { ...atualizado, dataDeIncorporacao: toYMD(atualizado.dataDeIncorporacao) };
     return res.status(200).json(payload);
   } catch (error) {
     const code = error.statusCode || 500;
@@ -92,15 +103,19 @@ async function updateAgent(req, res, next) {
   }
 }
 
-async function patchAgent(req, res, next) {
+async function patchAgent(req, res) {
   try {
     const { id } = req.params;
-    if ("id" in req.body && req.body.id !== req.params.id) {
+    ensureId404(id);
+    if ("id" in req.body && req.body.id !== id) {
       throw new ApiError(400, "Não é permitido alterar o ID.");
     }
     if (Object.keys(req.body).length === 0) {
       throw new ApiError(400, "Payload vazio.");
     }
+
+    ensureNoExtra(req.body, ["nome", "cargo", "dataDeIncorporacao", "id"]);
+
     const errors = validatePatch(req.body);
     if (errors.length) throw new ApiError(400, errors.join(""));
 
@@ -112,10 +127,8 @@ async function patchAgent(req, res, next) {
 
     const atualizado = await repository.patch(id, partial);
     if (!atualizado) throw new ApiError(404, "Agente nao encontrado.");
-    const payload = {
-      ...atualizado,
-      dataDeIncorporacao: toYMD(atualizado.dataDeIncorporacao),
-    };
+
+    const payload = { ...atualizado, dataDeIncorporacao: toYMD(atualizado.dataDeIncorporacao) };
     return res.status(200).json(payload);
   } catch (error) {
     const code = error.statusCode || 500;
@@ -123,13 +136,13 @@ async function patchAgent(req, res, next) {
   }
 }
 
-async function deleteAgent(req, res, next) {
-  console.log("Tento Deletar: ", req.body);
+async function deleteAgent(req, res) {
   try {
     const { id } = req.params;
+    ensureId404(id);
     const ok = await repository.remove(id);
     if (!ok) throw new ApiError(404, "Agente nao encontrado.");
-    return res.status(204).send();
+    return res.status(204).end();
   } catch (error) {
     const code = error.statusCode || 500;
     return res.status(code).json({ error: error.message || "Erro interno." });

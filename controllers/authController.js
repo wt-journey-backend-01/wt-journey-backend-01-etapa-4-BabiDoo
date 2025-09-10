@@ -1,45 +1,40 @@
+const ApiError = require("../utils/ApiError");
 const repository = require("../repositories/usuariosRepository");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtTokens = require("../utils/jwt-helpers");
 
-const validatePw = (password) => {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-  if (!regex.test(password)) {
-    return {
-      ok: false,
-      message:
-        "A senha deve ter no mínimo 8 caracteres, incluindo pelo menos uma letra minúscula, uma letra maiúscula, um número e um caractere especial.",
-    };
-  }
-
-  return { ok: true };
-};
+const isEmail = (v) =>
+  typeof v === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 async function createUser(req, res) {
   try {
+    const ALLOWED = ["nome", "email", "senha"];
+    const hasExtra = Object.keys(req.body).some((k) => !ALLOWED.includes(k));
+    if (hasExtra)
+      throw new ApiError(400, "Payload contém campos não permitidos.");
+
     const { nome, email, senha } = req.body || {};
-    if (!nome || !email || !senha) {
-      return res
-        .status(400)
-        .json({ error: "nome, email e senha são obrigatórios." });
+    if (typeof nome !== "string" || !nome.trim()) {
+      throw new ApiError(400, "Nome é obrigatório.");
     }
-    const validPw = validatePw(senha);
-    if (!validPw.ok) {
-      return res.status(400).json({ error: validPw.message });
+    if (!isEmail(email)) {
+      throw new ApiError(400, "E-mail inválido.");
     }
+    if (typeof senha !== "string" || senha.length < 8) {
+      throw new ApiError(400, "A senha deve ter no mínimo 8 caracteres.");
+    }
+
+    const exists = await repository.find(email);
+    if (exists) throw new ApiError(400, "E-mail já cadastrado.");
+
     const hashPw = await bcrypt.hash(senha, 10);
-    const novo = await repository.create({
-      nome: req.body.nome,
-      email: req.body.email,
-      senha: hashPw,
-    });
-    return res
-      .status(200)
-      .json({ id: novo.id, nome: novo.nome, email: novo.email });
+    const novo = await repository.create({ nome, email, senha: hashPw });
+
+    return res.status(201).json(novo);
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Nao foi possivel criar o usuario.");
+    const code = error.statusCode || 500;
+    return res.status(code).json({ error: error.message || "Erro interno." });
   }
 }
 
@@ -57,16 +52,13 @@ async function logUser(req, res) {
     if (!ok) {
       return res.status(401).send("Senha incorreta.");
     }
-    const { accessToken, refreshToken } = jwtTokens(user);
-    res.cookie("refresh_token", refreshToken, { httpOnly: true });
-    return res.status(200).json({
-      message: "Login efetuado com sucesso.",
-      accessToken: accessToken,
-      user: { id: user.id, nome: user.nome, email: user.email },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Nao foi possivel fazer login.");
+    const tokens = jwtTokens({ id: user.id, email: user.email });
+    return res.status(200).json({ message: "Login efetuado.", tokens });
+  } catch (err) {
+    const code = err.statusCode || 500;
+    return res
+      .status(code)
+      .json({ error: err.message || "Nao foi possivel fazer login." });
   }
 }
 

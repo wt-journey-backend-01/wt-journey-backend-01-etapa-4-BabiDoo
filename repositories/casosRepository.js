@@ -34,10 +34,10 @@ const update = async (id, data) => {
 
 const patch = async (id, partial) => {
   const toUpdate = {};
-  if (partial.titulo) toUpdate.titulo = partial.titulo;
-  if (partial.descricao) toUpdate.descricao = partial.descricao;
-  if (partial.status) toUpdate.status = partial.status;
-  if (partial.agente_id) toUpdate.agente_id = partial.agente_id;
+  if ("titulo" in partial) toUpdate.titulo = partial.titulo;
+  if ("descricao" in partial) toUpdate.descricao = partial.descricao;
+  if ("status" in partial) toUpdate.status = partial.status;
+  if ("agente_id" in partial) toUpdate.agente_id = partial.agente_id;
 
   if (Object.keys(toUpdate).length === 0) return findById(id);
 
