@@ -3,10 +3,17 @@ name: Autograder
 on:
   push:
     branches:
+<<<<<<< HEAD
       - main # Or your main branch
   pull_request:
     branches:
       - main # Or your main branch
+=======
+      - main 
+  pull_request:
+    branches:
+      - main 
+>>>>>>> a240e7c2936c561dd4d719009ff16868a6583696
   workflow_dispatch:
 
 jobs:
@@ -44,14 +51,22 @@ jobs:
         with:
           app_id: ${{ secrets.AUTOGRADER_APP_ID }}
           private_key: ${{ secrets.AUTOGRADER_APP_PRIVATE_KEY }}
+<<<<<<< HEAD
           repository: ${{ github.repository }} # Scopes the token to the current repository
+=======
+          repository: ${{ github.repository }} 
+>>>>>>> a240e7c2936c561dd4d719009ff16868a6583696
 
    
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           path: submission
+<<<<<<< HEAD
           token: ${{ steps.generate_app_token.outputs.token }} # Use the App's token for checkout
+=======
+          token: ${{ steps.generate_app_token.outputs.token }} 
+>>>>>>> a240e7c2936c561dd4d719009ff16868a6583696
 
       
       - name: Configure Git for AUTOGRADER-BOT
@@ -62,9 +77,16 @@ jobs:
 
     
       - name: Check repository criteria
+<<<<<<< HEAD
         uses: webtech-network/autograder@etapa-3
         with:
           autograder_bot_token: ${{ steps.generate_app_token.outputs.token }} # Pass the App token here!
+=======
+        uses: webtech-network/autograder@etapa-4
+        with:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          autograder_bot_token: ${{ steps.generate_app_token.outputs.token }} 
+>>>>>>> a240e7c2936c561dd4d719009ff16868a6583696
           redis_name: ${{ secrets.REDIS_NAME }}
           redis_url: ${{ secrets.REDIS_URL }}
           autograder_engine: ${{ secrets.ENGINE }}
